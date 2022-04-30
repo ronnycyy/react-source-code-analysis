@@ -8,13 +8,13 @@ import ReactDOM from 'react-dom';
 function wrapPromise(promise) {
   let result;
   let status = "pending";
-  let suspender = promise.then(
+  const suspender = promise.then(
     value => {
       result = value;
       status = "success";
     },
-    reason => {
-      result = reason;
+    err => {
+      result = err;
       status = "error";
     }
   );
@@ -22,6 +22,7 @@ function wrapPromise(promise) {
   return {
     read() {
       if (status === "pending") {
+        // mount 时抛出错误
         throw suspender;
       } else if (status === "error") {
         throw result;
@@ -36,21 +37,22 @@ function fetchTime() {
   return wrapPromise(
     new Promise((resolve) => {
       setTimeout(() => {
-        resolve({ time: new Date().toLocaleString() });
+        const r = { time: new Date().toLocaleString() }
+        console.log('取得时间', r);
+        resolve(r);
       }, 1000);
     })
   );
 }
 
 function Clock({ resource }) {
-  const { time } = resource.read();
+  // resource.read 有可能抛出错误，但 Suspense 会处理，这里按同步写法处理即可。
+  const { time } = resource.read(); 
   return <h3>{time}</h3>;
 }
 
 function Button({ onClick, children }) {
-  const [startTransition, isPending] = useTransition({
-    timeoutMs: 2000
-  });
+  const [startTransition, isPending] = useTransition({ timeoutMs: 2000});
 
   const btnOnClick = () => {
     startTransition(() => {
@@ -75,6 +77,7 @@ function App() {
     setTime(fetchTime());
   };
 
+
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <Button onClick={load}>加载</Button>
@@ -86,7 +89,5 @@ function App() {
 
 const root = document.getElementById('reactapp');
 
-
 // ReactDOM.render(<App />, root);
-
 ReactDOM.unstable_createRoot(root).render(<App />);
