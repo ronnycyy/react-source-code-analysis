@@ -3,8 +3,34 @@ import React, {
   useState,
   unstable_useTransition as useTransition
 } from "react";
+import ReactDOM from 'react-dom';
 
-import { wrapPromise } from "./utils";
+function wrapPromise(promise) {
+  let result;
+  let status = "pending";
+  let suspender = promise.then(
+    value => {
+      result = value;
+      status = "success";
+    },
+    reason => {
+      result = reason;
+      status = "error";
+    }
+  );
+
+  return {
+    read() {
+      if (status === "pending") {
+        throw suspender;
+      } else if (status === "error") {
+        throw result;
+      } else {
+        return result;
+      }
+    }
+  };
+}
 
 function fetchTime() {
   return wrapPromise(
@@ -42,7 +68,7 @@ function Button({ onClick, children }) {
   );
 }
 
-export default function App() {
+function App() {
   const [time, setTime] = useState(fetchTime());
 
   const load = () => {
@@ -56,3 +82,11 @@ export default function App() {
     </Suspense>
   );
 }
+
+
+const root = document.getElementById('reactapp');
+
+
+// ReactDOM.render(<App />, root);
+
+ReactDOM.unstable_createRoot(root).render(<App />);

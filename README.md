@@ -7,10 +7,15 @@
 用于链接的打包后的 React
 
 ## book
-测试 DEMO
+调试源码的项目
 
 ## repo
 React v17.0.0 源码
+
+## projects
+一些能说明问题的 React 项目
+### react-18-concurrency-first-look
+理解 useTransition 的项目
 
 
 

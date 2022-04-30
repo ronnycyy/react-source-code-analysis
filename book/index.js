@@ -1,30 +1,92 @@
-import React, { unstable_useTransition as useTransition, useState } from 'react';
+import React, {
+  Suspense,
+  useState,
+  unstable_useTransition as useTransition
+} from "react";
 import ReactDOM from 'react-dom';
 
-function App() {
-  const [startTransition, isPending] = useTransition({ timeoutMs: 20000 });
-  const [count, setCount] = useState(0);
+function wrapPromise(promise) {
+  let result;
+  let status = "pending";
+  let suspender = promise.then(
+    value => {
+      result = value;
+      status = "success";
+    },
+    reason => {
+      result = reason;
+      status = "error";
+    }
+  );
 
-  console.log(isPending);
+  return {
+    read() {
+      if (status === "pending") {
+        throw suspender;
+      } else if (status === "error") {
+        throw result;
+      } else {
+        return result;
+      }
+    }
+  };
+}
 
-  function handleClick() {
-    startTransition(() => {
-      setCount(c => c + 1);
+function fetchTime() {
+  return wrapPromise(
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ time: new Date().toLocaleString() });
+      }, 1000);
     })
-  }
-
-  return (
-    <div>
-      {isPending && <span>Pending...</span>}
-      <button onClick={handleClick}>{count}</button>
-    </div>
   );
 }
 
+function Clock({ resource }) {
+  const { time } = resource.read();
+  return <h3>{time}</h3>;
+}
+
+function Button({ onClick, children }) {
+  const [startTransition, isPending] = useTransition({
+    timeoutMs: 2000
+  });
+
+  const btnOnClick = () => {
+    startTransition(() => {
+      onClick();
+    });
+  };
+
+  return (
+    <>
+      <button disabled={isPending} onClick={btnOnClick}>
+        {children}
+      </button>
+      <span>{isPending && " loading"}</span>
+    </>
+  );
+}
+
+function App() {
+  const [time, setTime] = useState(fetchTime());
+
+  const load = () => {
+    setTime(fetchTime());
+  };
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Button onClick={load}>加载</Button>
+      <Clock resource={time} />
+    </Suspense>
+  );
+}
+
+
 const root = document.getElementById('reactapp');
+
 
 // ReactDOM.render(<App />, root);
 
 ReactDOM.unstable_createRoot(root).render(<App />);
-
-
