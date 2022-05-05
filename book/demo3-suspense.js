@@ -23,6 +23,8 @@ function wrapPromise(promise) {
     read() {
       if (status === "pending") {
         // mount 时抛出错误
+
+        // renderRootConcurrent 中会 catch 到
         throw suspender;
       } else if (status === "error") {
         throw result;
