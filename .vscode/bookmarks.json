@@ -6,7 +6,12 @@
 				{
 					"line": 79,
 					"column": 4,
-					"label": "所有 Fiber 的 tag"
+					"label": "FiberTag"
+				},
+				{
+					"line": 773,
+					"column": 19,
+					"label": "EffectTag"
 				},
 				{
 					"line": 16692,
@@ -19,9 +24,14 @@
 					"label": "命中 bailout 逻辑"
 				},
 				{
-					"line": 24258,
+					"line": 24171,
+					"column": 57,
+					"label": "completeWork 一路挂载 effect 链上去"
+				},
+				{
+					"line": 24262,
 					"column": 39,
-					"label": "completeWork: 最后一个子结点回到父结点"
+					"label": "completeWork 子结点遍历完了，返回父结点"
 				}
 			]
 		}
