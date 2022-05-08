@@ -1,30 +1,24 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 
-
-// App 是没有 state 的，不会改变
 function App() {
   return (
-    <WrappedInput>
-      {/* oldProps === newProps 前后 props 相等，而且没有 state 变化，不多BB直接 bailout。 */}
+    <div>
+      <Input />
+      {/* current.memoizedProps === workInProgress.pendingProps 结果为 true，前后 props 一样，直接 bailout 不用 render */}
       <ExpensiveCPU />
-    </WrappedInput>
+    </div>
   )
 }
 
-// 只有一个子结点，children 是一个 ReactElement。
-// 有 两个以上的子结点，children 就是 Array<ReactElement>。
-
-// state 全在 WrappedInput 里，children 是不会被动 render 的
-function WrappedInput({ children }) {
+function Input() {
   const [word, setWord] = useState('');
 
   return (
-    <div title={word}>
+    <>
       <input value={word} onChange={(e) => setWord(e.target.value)} />
       <p>word is: {word}</p>
-      {children}
-    </div>
+    </>
   )
 }
 
