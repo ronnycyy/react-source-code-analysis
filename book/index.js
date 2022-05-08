@@ -1,94 +1,34 @@
-import React, {
-  Suspense,
-  useState,
-  unstable_useTransition as useTransition
-} from "react";
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 
-function wrapPromise(promise) {
-  let result;
-  let status = "pending";
-  const suspender = promise.then(
-    value => {
-      result = value;
-      status = "success";
-    },
-    err => {
-      result = err;
-      status = "error";
-    }
-  );
+function App() {
 
-  return {
-    read() {
-      if (status === "pending") {
-        // mount 时抛出错误
-        throw suspender;
-      } else if (status === "error") {
-        throw result;
-      } else {
-        return result;
-      }
-    }
-  };
+  return (
+    <div>
+      <Input />
+      {/* current.memoizedProps === workInProgress.pendingProps，true，所以前后 props 一样，直接 bailout 不用 render */}
+      <ExpensiveCPU />
+    </div>
+  )
 }
 
-function fetchTime() {
-  return wrapPromise(
-    new Promise((resolve) => {
-      setTimeout(() => {
-        const r = { time: new Date().toLocaleString() }
-        resolve(r);
-      }, 1000);
-    })
-  );
-}
-
-function Clock({ resource }) {
-  console.log('Clock render~');
-  // resource.read 有可能抛出错误，但 Suspense 会处理，这里按同步写法处理即可。
-  const { time } = resource.read();
-  return <h3>{time}</h3>;
-}
-
-function Button({ onClick, children }) {
-  console.log('Button render~');
-  const [startTransition, isPending] = useTransition({ timeoutMs: 2000 });
-
-  const btnOnClick = () => {
-    startTransition(() => {
-      onClick();
-    });
-  };
+function Input() {
+  const [num, setNum] = useState(0);
 
   return (
     <>
-      <button disabled={isPending} onClick={btnOnClick}>
-        {children}
-      </button>
-      <span>{isPending && " loading"}</span>
+      <input value={num} onChange={(e) => setNum(+e.target.value)} />
+      <p>num is: {num}</p>
     </>
-  );
+  )
 }
 
-function App() {
-  console.log('App render~');
-  const [time, setTime] = useState(fetchTime());
-
-  const load = () => {
-    setTime(fetchTime());
-  };
-
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Button onClick={load}>加载</Button>
-      <Clock resource={time} />
-    </Suspense>
-  );
+function ExpensiveCPU() {
+  let now = performance.now();
+  while (performance.now() - now < 100) { }
+  console.log('卡 100 ms');
+  return <h5>耗时的组件</h5>
 }
 
 
-const root = document.getElementById('reactapp');
-
-// ReactDOM.render(<App />, root);
-ReactDOM.unstable_createRoot(root).render(<App />);
+ReactDOM.render(<App />, document.getElementById('reactapp'));

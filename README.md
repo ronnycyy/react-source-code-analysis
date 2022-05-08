@@ -19,6 +19,15 @@ React v17.0.0 源码
 
 
 
+## 架构篇之 render 阶段
+
+
+
+
+
+
+
+
 ### 高优先级的任务如何插队
 又是 ensureRootIsScheduled！
 ```js

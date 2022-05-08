@@ -4,9 +4,24 @@
 			"path": "react-17.0.0-alpha/node_modules/react-dom/cjs/react-dom.development.js",
 			"bookmarks": [
 				{
+					"line": 79,
+					"column": 4,
+					"label": "所有 Fiber 的 tag"
+				},
+				{
 					"line": 16692,
 					"column": 38,
 					"label": "useTransition 源码"
+				},
+				{
+					"line": 19842,
+					"column": 24,
+					"label": "命中 bailout 逻辑"
+				},
+				{
+					"line": 24258,
+					"column": 39,
+					"label": "completeWork: 最后一个子结点回到父结点"
 				}
 			]
 		}
